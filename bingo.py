@@ -33,7 +33,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("🔢 Sorteador de Bingo 5x5 - Itatiaia")
+st.title("🔢 Bingo 5x5 - Itatiaia")
 
 # 1. Inicializa as variáveis de estado
 if "historico" not in st.session_state:
