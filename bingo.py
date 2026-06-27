@@ -4,7 +4,7 @@ import random
 # Configuração inicial da página
 st.set_page_config(page_title="Sorteador de Bingo Profissional", page_icon="🔢", layout="centered")
 
-# CSS customizado para as pedras grandes e design do painel
+# CSS customizado para as pedras grandes, design do painel e alertas
 st.markdown("""
     <style>
     .grid-container {
@@ -64,7 +64,7 @@ if "disponiveis" not in st.session_state:
 if "ultima_pedra" not in st.session_state:
     st.session_state.ultima_pedra = None
 
-# --- PAINEL DE CONFIGURAÇÃO DE PREMIAÇÕES (BARRA LATERAL) ---
+# --- BARRA LATERAL (CONFIGURAÇÃO E CONFERÊNCIA) ---
 st.sidebar.header("⚙️ Configuração do Sorteio")
 
 # Permite ao operador customizar o nome dos 4 prêmios
@@ -79,6 +79,35 @@ premio_atual = st.sidebar.radio(
     [premio1, premio2, premio3, premio4]
 )
 
+st.sidebar.divider()
+
+# --- NOVO: MÓDULO DE CONFERÊNCIA DE CARTELA ---
+st.sidebar.header("🔍 Validador de Ganhador")
+st.sidebar.write("Digite os números que o jogador completou (separe por espaço ou vírgula):")
+numeros_candidatos = st.sidebar.text_input("Números da Cartela:", placeholder="Ex: 12, 24, 45, 60")
+
+if numeros_candidatos:
+    try:
+        # Processa o texto digitado transformando em uma lista de inteiros limpa
+        limpar_texto = numeros_candidatos.replace(",", " ")
+        lista_conferir = [int(n) for n in limpar_texto.split() if n.isdigit()]
+        
+        if lista_conferir:
+            # Verifica quais números digitados REALMENTE já foram sorteados
+            sorteados_validos = [n for n in lista_conferir if n in st.session_state.historico]
+            invalidos = [n for n in lista_conferir if n not in st.session_state.historico]
+            
+            st.sidebar.write(f"Conferindo **{len(lista_conferir)}** números...")
+            
+            # Se todos os números digitados estão no histórico, BINGO!
+            if len(sorteados_validos) == len(lista_conferir):
+                st.sidebar.success(f"🎉 BINGO CONFIRMADO!\nTodos os {len(lista_conferir)} números digitados já saíram!")
+            else:
+                st.sidebar.error(f"❌ CARTELA FALSA / INCORRETA!\nOs seguintes números AINDA NÃO SAÍRAM: {invalidos}")
+    except ValueError:
+        st.sidebar.warning("Por favor, digite apenas números válidos separados por espaço ou vírgula.")
+
+# --- TELA PRINCIPAL ---
 # Mostra o prêmio atual em destaque na tela principal
 st.markdown(f'<div class="premio-box">🏆 Valendo Agora: {premio_atual}</div>', unsafe_allow_html=True)
 
@@ -102,7 +131,6 @@ with col2:
 st.divider()
 
 # 2. Função para obter a Letra Correspondente (Padrão BINGO 5x5)
-# B: 1-15 | I: 16-30 | N: 31-45 | G: 46-60 | O: 61-75
 def obter_letra_bingo(numero):
     if numero <= 15: return "B"
     elif numero <= 30: return "I"
