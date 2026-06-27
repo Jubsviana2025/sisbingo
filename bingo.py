@@ -3,7 +3,7 @@ import random
 import time
 
 # Configuração inicial da página
-st.set_page_config(page_title="Bingo Animado Profissional", page_icon="🔢", layout="centered")
+st.set_page_config(page_title="Bingo Animado", page_icon="🔢", layout="centered")
 
 # CSS customizado para o design do app e balão de fala do narrador
 st.markdown("""
